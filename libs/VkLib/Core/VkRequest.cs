@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using VkLib.Extensions;
+using VkLib.Error;
 
 namespace VkLib.Core
 {
@@ -16,68 +16,93 @@ namespace VkLib.Core
     /// </summary>
     internal class VkRequest
     {
-        private readonly Uri _uri;
-        private readonly string _method;
-        private readonly Dictionary<string, string> _parameters;
+        internal static string UserAgent { get; set; }
 
-        public VkRequest(Uri uri)
+        public static async Task<JObject> GetAsync(string url, Dictionary<string, string> parameters)
         {
-            _uri = uri;
-            _method = "GET";
-        }
+            var uri = new Uri(url);
+            var fullUri = GetFullUri(uri, parameters);
 
-        public VkRequest(Uri uri, Dictionary<string, string> parameters, string method = "GET")
-        {
-            _uri = uri;
-            _method = method;
-            _parameters = parameters;
-        }
+            Debug.WriteLine($"VK GET {fullUri}");
 
-        public async Task<JObject> Execute()
-        {
-            if (!NetworkInterface.GetIsNetworkAvailable())
-                throw new Exception("Network is not available.");
+            var httpClient = GetHttpClient();
 
-            var uri = GetFullUri();
-#if DEBUG
-            Debug.WriteLine("Invoking " + uri);
-#endif
-
-            JObject response = null;
-
-            var httpClient = new HttpClient();
-            if (_method == "GET")
+            HttpResponseMessage responseMessage = await httpClient.GetAsync(fullUri);
+            var content = await responseMessage.Content.ReadAsStringAsync();
+            if (!string.IsNullOrEmpty(content))
             {
-                HttpResponseMessage responseMessage = await httpClient.GetAsync(uri);
-                var content = await responseMessage.Content.ReadAsStringAsync();
-                if (!string.IsNullOrEmpty(content))
-                    response = JObject.Parse(content);
-            }
-            else
-            {
-                var postContent = new FormUrlEncodedContent(_parameters);
-                postContent.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
-                HttpResponseMessage responseMessage = await httpClient.PostAsync(uri, postContent);
-                var content = await responseMessage.Content.ReadAsStringAsync();
-                if (!string.IsNullOrEmpty(content))
-                    response = JObject.Parse(content);
+                Debug.WriteLine($"VK Response {content}");
+
+                var response = JObject.Parse(content);
+
+                try
+                {
+                    VkErrorProcessor.ProcessError(response);
+                }
+                catch (VkTooManyRequestsException)
+                {
+                    Debug.WriteLine("VK Request throttling");
+
+                    //wait for 3 secs
+                    await Task.Delay(3000);
+                    return await GetAsync(url, parameters);
+                }
+
+                return response;
             }
 
-            return response;
+            return null;
         }
 
-        private Uri GetFullUri()
+        public static async Task<JObject> PostAsync(string url, Dictionary<string, string> parameters)
         {
-            if (_method == "GET" && _parameters != null && _parameters.Count > 0)
-            {
-                var paramStr = string.Join("&",
-                                           _parameters.Select(
-                                               kp => string.Format("{0}={1}", Uri.EscapeDataString(kp.Key), Uri.EscapeDataString(kp.Value))));
+            var uri = new Uri(url);
+            Debug.WriteLine($"VK POST {uri}");
 
-                return new Uri(string.Concat(_uri, "?", paramStr));
+            var httpClient = GetHttpClient();
+
+            var postContent = new FormUrlEncodedContent(parameters);
+            postContent.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+
+            HttpResponseMessage responseMessage = await httpClient.PostAsync(uri, postContent);
+            var content = await responseMessage.Content.ReadAsStringAsync();
+            if (!string.IsNullOrEmpty(content))
+            {
+                var response = JObject.Parse(content);
+
+                VkErrorProcessor.ProcessError(response);
+
+                return response;
             }
 
-            return _uri;
+            return null;
+        }
+
+        private static Uri GetFullUri(Uri baseUri, Dictionary<string, string> parameters)
+        {
+            if (parameters != null && parameters.Count > 0)
+            {
+                var paramStr = string.Join("&", parameters.Select(kp => $"{Uri.EscapeDataString(kp.Key)}={Uri.EscapeDataString(kp.Value)}"));
+
+                return new Uri(string.Concat(baseUri, "?", paramStr));
+            }
+
+            return baseUri;
+        }
+
+        private static HttpClient GetHttpClient()
+        {
+            var handler = new HttpClientHandler();
+            if (handler.SupportsAutomaticDecompression)
+            {
+                handler.AutomaticDecompression = DecompressionMethods.GZip |
+                                                 DecompressionMethods.Deflate;
+            }
+
+            var client = new HttpClient(handler);
+            client.DefaultRequestHeaders.Add("User-Agent", UserAgent);
+
+            return client;
         }
     }
 }

@@ -8,9 +8,9 @@ namespace VkLib.Core.Users
 {
     public class VkUsersRequest
     {
-        private readonly Vkontakte _vkontakte;
+        private readonly Vk _vkontakte;
 
-        internal VkUsersRequest(Vkontakte vkontakte)
+        internal VkUsersRequest(Vk vkontakte)
         {
             _vkontakte = vkontakte;
         }
@@ -26,9 +26,6 @@ namespace VkLib.Core.Users
 
         public async Task<VkItemsResponse<VkProfile>> Get(IEnumerable<string> userIds, string fields = null, string nameCase = null)
         {
-            if (_vkontakte.AccessToken == null || string.IsNullOrEmpty(_vkontakte.AccessToken.Token) || _vkontakte.AccessToken.HasExpired)
-                throw new VkInvalidTokenException();
-
             var parameters = new Dictionary<string, string>();
 
             if (userIds != null)
@@ -42,14 +39,10 @@ namespace VkLib.Core.Users
 
             _vkontakte.SignMethod(parameters);
 
-            var response = await new VkRequest(new Uri(VkConst.MethodBase + "users.get"), parameters).Execute();
+            var response = await VkRequest.GetAsync(VkConst.MethodBase + "users.get", parameters);
 
-            VkErrorProcessor.ProcessError(response);
-
-            if (response.SelectToken("response") != null)
-            {
+            if (response["response"] != null)
                 return new VkItemsResponse<VkProfile>((from u in response["response"] select VkProfile.FromJson(u)).ToList());
-            }
 
             return VkItemsResponse<VkProfile>.Empty;
         }
@@ -91,6 +84,7 @@ namespace VkLib.Core.Users
         /// <param name="offset">Offset (more than 1000 ignores)</param>
         /// <param name="count">Count (maximum 1000)</param>
         /// <returns></returns>
+        //TODO move to separate class (SearchRequestParams?)
         public async Task<VkItemsResponse<VkProfile>> Search(
             string query, VkUsersSortType sortType = VkUsersSortType.ByPopularity, string fields = null,
             int city = 0, int country = 0, string hometown = null, int universityCountry = 0, int university = 0,
@@ -136,6 +130,7 @@ namespace VkLib.Core.Users
                 parameters.Add("university_chair", universityChair.ToString());
 
             parameters.Add("sex", ((int)sex).ToString());
+
             if (status != null)
                 parameters.Add("status", ((int)status.Value).ToString());
 
@@ -201,9 +196,7 @@ namespace VkLib.Core.Users
 
             _vkontakte.SignMethod(parameters);
 
-            var response = await new VkRequest(new Uri(VkConst.MethodBase + "users.search"), parameters).Execute();
-
-            VkErrorProcessor.ProcessError(response);
+            var response = await VkRequest.GetAsync(VkConst.MethodBase + "users.search", parameters);
 
             if (response.SelectToken("response.items") != null)
             {

@@ -331,19 +331,15 @@
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.1</Version>
     </PackageReference>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\portable-net40+sl5+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\VKLib\VKLib.csproj">
-      <Project>{9089de3a-8079-4d74-be1c-548395dbb417}</Project>
-      <Name>VKLib</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="VkPeopleSearchApp_TemporaryKey.pfx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\libs\VkLib\VkLib.csproj">
+      <Project>{8785042b-23f6-4ea4-87be-02750c4da771}</Project>
+      <Name>VkLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

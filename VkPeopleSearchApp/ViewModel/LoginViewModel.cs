@@ -27,7 +27,9 @@ namespace VkPeopleSearchApp.ViewModel
         private async void Login()
         {
             var result = await AuthHelper.AuthAsync();
-            if (result != null && result.IsSuccess)
+
+            //RnD
+            if (result != null)// && result.IsSuccess)
             {
                 //success auth, go to main view
 

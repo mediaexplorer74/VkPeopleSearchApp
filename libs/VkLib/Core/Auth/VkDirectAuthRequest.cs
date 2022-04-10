@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using VkLib.Auth;
 using VkLib.Error;
 using VkLib.Extensions;
 
@@ -10,9 +11,9 @@ namespace VkLib.Core.Auth
 {
     public class VkDirectAuthRequest
     {
-        private readonly Vkontakte _vkontakte;
+        private readonly Vk _vkontakte;
 
-        internal VkDirectAuthRequest(Vkontakte vkontakte)
+        internal VkDirectAuthRequest(Vk vkontakte)
         {
             _vkontakte = vkontakte;
         }
@@ -26,16 +27,10 @@ namespace VkLib.Core.Auth
         /// <param name="scopeSettings">Scope settings</param>
         /// <param name="captchaSid">Captcha sid</param>
         /// <param name="captchaKey">Captcha key</param>
-        /// <returns><see cref="AccessToken"/></returns>
-        public async Task<AccessToken> Login(string login, string password, VkScopeSettings scopeSettings = VkScopeSettings.CanAccessFriends,
+        /// <returns><see cref="VkAccessToken"/></returns>
+        public async Task<VkAccessToken> Login(string login, string password, VkScopeSettings scopeSettings = VkScopeSettings.CanAccessFriends,
             string captchaSid = null, string captchaKey = null)
         {
-            if (string.IsNullOrEmpty(_vkontakte.AppId))
-                throw new ArgumentException("App id must be specified.");
-
-            if (string.IsNullOrEmpty(_vkontakte.ClientSecret))
-                throw new ArgumentException("Client secret must be specified.");
-
             var parameters = new Dictionary<string, string>
             {
                 {"username", login},
@@ -53,30 +48,9 @@ namespace VkLib.Core.Auth
             parameters.Add("client_id", _vkontakte.AppId);
             parameters.Add("client_secret", _vkontakte.ClientSecret);
 
-            var request = new VkRequest(new Uri(VkConst.DirectAuthUrl), parameters);
-            var response = await request.Execute();
+            var response = await VkRequest.GetAsync(VkConst.DirectAuthUrl, parameters);
 
-            if (response["error"] != null)
-            {
-                switch (response["error"].Value<string>())
-                {
-                    case "need_captcha":
-                        throw new VkCaptchaNeededException(response["captcha_sid"].Value<string>(), response["captcha_img"].Value<string>());
-
-                    case "invalid_client":
-                        throw new VkInvalidClientException();
-
-                    case "need_validation":
-                        throw new VkNeedValidationException() { RedirectUri = new Uri(response["redirect_uri"].Value<string>()) };
-
-                    default:
-                        throw new VkException(response["error"].Value<string>(), response["error_description"].Value<string>());
-                }
-
-                return null;
-            }
-
-            var token = new AccessToken();
+            var token = new VkAccessToken();
             token.Token = response["access_token"].Value<string>();
             token.UserId = response["user_id"].Value<long>();
             token.ExpiresIn = response["expires_in"].Value<long>() == 0 ? DateTime.MaxValue : DateTimeExtensions.UnixTimeStampToDateTime(response["expires_in"].Value<long>());

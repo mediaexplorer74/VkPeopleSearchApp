@@ -207,9 +207,9 @@ namespace VkPeopleSearchApp.ViewModel
             return null;
         }
 
-        private void RefreshLogin(OAuthResult result)
+        private void RefreshLogin(VkOAuthResult result)
         {
-            if (result.IsSuccess)
+            if (result.AccessToken != null)//(result.IsSuccess)
             {
                 ServiceLocator.Vkontakte.AccessToken = result.AccessToken;
                 Settings.Instance.AccessToken = result.AccessToken;

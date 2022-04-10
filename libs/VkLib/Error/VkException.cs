@@ -16,7 +16,7 @@ namespace VkLib.Error
 
         public VkException()
         {
-            
+
         }
 
         public VkException(string error, string description)
@@ -27,7 +27,7 @@ namespace VkLib.Error
 
         public override string ToString()
         {
-            return string.Join(" ", "error: " + Error, "description: " + Description);
+            return $"{Error} {Description}";
         }
     }
 }

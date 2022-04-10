@@ -88,10 +88,12 @@ namespace VkPeopleSearchApp.ViewModel
             try
             {
                 //load near cities
-                var response = await ServiceLocator.Vkontakte.Database.GetCities(_searchParams.Country.Id);
-                if (!response.Items.IsNullOrEmpty())
+                //var response =
+                //    await ServiceLocator.Vkontakte.Database.GetCities(_searchParams.Country.Id);
+                
+                if (1==0)//(!response.Items.IsNullOrEmpty())
                 {
-                    _nearCities = response.Items;
+                    //_nearCities = response.Items;
                     Cities = _nearCities;
                 }
                 else
@@ -122,14 +124,15 @@ namespace VkPeopleSearchApp.ViewModel
             try
             {
                 //load near cities
-                var response = await ServiceLocator.Vkontakte.Database.GetCities(_searchParams.Country.Id, query: Query);
+                //var response = await ServiceLocator.Vkontakte.Database.GetCities(_searchParams.Country.Id, query: Query);
 
                 if (token.IsCancellationRequested)
                     return;
 
-                if (!response.Items.IsNullOrEmpty())
+                if (1==0)//(!response.Items.IsNullOrEmpty())
                 {
-                    Cities = response.Items;
+                    //TODO
+                    Cities = null;// response.Items;
                 }
                 else
                 {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using VkLib.Auth;
 using VkLib.Extensions;
 
 namespace VkLib.Core.Auth
@@ -13,21 +14,20 @@ namespace VkLib.Core.Auth
 
     public class VkOAuthRequest
     {
-        private readonly Vkontakte _vkontakte;
+        private readonly Vk _vkontakte;
 
-        internal VkOAuthRequest(Vkontakte vkontakte)
+        internal VkOAuthRequest(Vk vkontakte)
         {
             _vkontakte = vkontakte;
         }
 
-        public string GetAuthUrl(VkScopeSettings? scope = null, VkAuthDisplayType display = VkAuthDisplayType.Mobile)
+        public string GetAuthUrl(VkScopeSettings scope, VkAuthDisplayType display)
         {
             var parameters = new Dictionary<string, string>();
 
             parameters.Add("client_id", _vkontakte.AppId);
-            if (scope != null)
-                parameters.Add("scope", ((int)scope).ToString());
-            parameters.Add("redirect_uri", VkConst.OAuthRedirectUrl);
+            parameters.Add("scope", ((int)scope).ToString());
+            parameters.Add("redirect_uri", "https://oauth.vk.com/blank.html");
             parameters.Add("v", _vkontakte.ApiVersion);
             parameters.Add("response_type", "token");
 
@@ -49,14 +49,14 @@ namespace VkLib.Core.Auth
             return VkConst.OAuthUrl + parameters.ToUrlParams();
         }
 
-        public string GetAuthRedirectUrl()
+        public object GetAuthRedirectUrl(string v)
         {
-            return VkConst.OAuthRedirectUrl;
+            throw new NotImplementedException();
         }
 
-        public OAuthResult ProcessAuth(Uri uri)
+        public VkOAuthResult ProcessAuth(Uri uri)
         {
-            return OAuthResult.Parse(uri);
+            return VkOAuthResult.Parse(uri);
         }
     }
 }

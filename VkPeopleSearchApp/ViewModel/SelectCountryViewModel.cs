@@ -91,10 +91,11 @@ namespace VkPeopleSearchApp.ViewModel
             try
             {
                 //load near countries
-                var response = await ServiceLocator.Vkontakte.Database.GetCountries();
-                if (!response.Items.IsNullOrEmpty())
+                //var response = await ServiceLocator.Vkontakte.Database.GetCountries();
+                
+                if (1==0)//(!response.Items.IsNullOrEmpty())
                 {
-                    _nearCountries = response.Items;
+                    //_nearCountries = response.Items;
                     Countries = _nearCountries;
                 }
                 else
@@ -114,10 +115,11 @@ namespace VkPeopleSearchApp.ViewModel
             try
             {
                 //load all countries
-                var response = await ServiceLocator.Vkontakte.Database.GetCountries(needAll: true, count: 1000);
-                if (!response.Items.IsNullOrEmpty())
+                //var response = await ServiceLocator.Vkontakte.Database.GetCountries(needAll: true, count: 1000);
+                
+                if (1==1)//(!response.Items.IsNullOrEmpty())
                 {
-                    _allCountries = response.Items;
+                    _allCountries = null; //response.Items;
                 }
             }
             catch (Exception ex)

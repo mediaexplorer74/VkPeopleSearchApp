@@ -49,6 +49,9 @@ namespace VkPeopleSearchApp.Controls
 
                 //build second line string (university or city)
                 string secondLine = String.Empty;
+
+                // RnD
+                /*
                 if (!user.Universities.IsNullOrEmpty())
                 {
                     var university = user.Universities.First();
@@ -81,6 +84,10 @@ namespace VkPeopleSearchApp.Controls
                     c.FriendedIcon.Visibility = Visibility.Collapsed;
                     c.AddFriendButton.Visibility = Visibility.Visible;
                 }
+                */
+                //TEMP
+                c.FriendedIcon.Visibility = Visibility.Collapsed;
+                c.AddFriendButton.Visibility = Visibility.Visible;
             }
         }
 

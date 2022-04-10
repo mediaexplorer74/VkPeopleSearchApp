@@ -14,11 +14,11 @@ namespace VkPeopleSearchApp.Domain
         /// <summary>
         /// Vk access token
         /// </summary>
-        public AccessToken AccessToken { get; set; }
+        public VkAccessToken AccessToken { get; set; }
 
         public override void Load()
         {
-            AccessToken = Get<AccessToken>("AccessToken", null);
+            AccessToken = Get<VkAccessToken>("AccessToken", null);
         }
 
         public override void Save()

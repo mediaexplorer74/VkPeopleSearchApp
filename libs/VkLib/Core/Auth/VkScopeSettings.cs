@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace VkLib.Core.Auth
+namespace VkLib.Auth
 {
     /// <summary>
     /// Права доступа приложения
