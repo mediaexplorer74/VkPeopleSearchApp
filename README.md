@@ -12,7 +12,7 @@ The code based on VkLib by Stealth2012.
 
 ## Screenshots
 <table><tr>
-<td> <img src="Images/shot1.png" alt="Drawing1" style="width: 350px;"/> </td>
+<td> <img src="Images/shot1.png" alt="Drawing1" style="width: 400px;"/> </td>
 </tr></table>
 
 ## Status
