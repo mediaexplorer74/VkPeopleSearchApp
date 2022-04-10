@@ -4,11 +4,11 @@ A sample Windows 10 Mobile app for updated VkLib library.
 This is my mini-research of VK services (or, how to use VkLib...)
 
 ## About
-The code based on VkLib by Stealth2012. 
+My VkPeopleSearchApp code based on VkLib/VkPeopleSearchApp by Stealth2012. 
 
 ## 2 words about the original
-- A sample Windows Phone 8.1 (WinRT) app for VkLib library (obsolete; it can't connect to vk at now)
 - Shows how to use VkLib to perform OAuth and to search users in VK.com.
+- A sample Windows Phone 8.1 (WinRT) app for VkLib library is obsolete (it can't connect to vk at now)
 
 ## Screenshots
 <table><tr>
